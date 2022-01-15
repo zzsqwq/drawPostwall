@@ -1,0 +1,9 @@
+
+# font 
+/font
+*.ttf
+*.ttc
+*.tof
+
+# ssl
+/ssl
