@@ -7,3 +7,9 @@
 
 # ssl
 /ssl
+
+# cache
+__pycache__/
+
+# idea
+.idea/

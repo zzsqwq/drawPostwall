@@ -11,6 +11,9 @@ import requests
 from PIL import Image, ImageDraw, ImageFont
 import base64
 import re
+import argparse
+import json
+import os
 
 avatar_size = (180, 180)
 font_size = 20
@@ -178,4 +181,24 @@ def draw_image():
     return image_code
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000, debug=False, ssl_context=("./ssl/www.zzsqwq.cn.crt","./ssl/www.zzsqwq.cn.key"))
+
+    parser = argparse.ArgumentParser()
+
+
+    parser.add_argument('--test', action="store_true", help="if test or not")
+
+    opt = parser.parse_args()
+
+    print(os.getcwd())
+    if opt.test:
+        with open("./test_data.json", "r", encoding='utf-8') as f:
+            post_data = json.load(f)
+
+        print(post_data)
+
+        img = get_img(post_data)
+        cv2.imshow("test", img)
+        cv2.waitKey()
+
+    else:
+        app.run(host="0.0.0.0", port=5000, debug=False, ssl_context=("./ssl/www.zzsqwq.cn.crt","./ssl/www.zzsqwq.cn.key"))
