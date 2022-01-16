@@ -3,17 +3,18 @@
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
-from flask import Flask,request
+import argparse
+import base64
+import json
+import os
+import re
 from io import BytesIO
+
 import cv2
 import numpy as np
 import requests
 from PIL import Image, ImageDraw, ImageFont
-import base64
-import re
-import argparse
-import json
-import os
+from flask import Flask, request
 
 avatar_size = (180, 180)
 font_size = 20
@@ -21,14 +22,14 @@ img_size = (1080, 720)
 
 
 def cv2ImgAddText(img, text, left, top, textColor=(0, 255, 0), textSize=20):
-    if (isinstance(img, np.ndarray)):  # 判断是否OpenCV图片类型
+    if isinstance(img, np.ndarray):  # 判断是否OpenCV图片类型
         img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     # 创建一个可以在给定图像上绘图的对象
     draw = ImageDraw.Draw(img)
     # 字体的格式
     fontStyle = ImageFont.truetype(
         "./font/SourceHanSansCN/SourceHanSansCN-Regular.ttf", textSize, encoding="utf-8")
-    #fontStyle = ImageFont.truetype(
+    # fontStyle = ImageFont.truetype(
     #    "./font/EmojiOneColor-SVGinOT.ttf", textSize)
     # 绘制文本
     draw.text((left, top), text, textColor, font=fontStyle)
@@ -81,9 +82,7 @@ def drawDashLine(img, pointx, pointy, decay=10):
     return img
 
 
-
 def get_img(post_data):
-
     keys = post_data.keys()
 
     img = np.zeros((img_size[0], img_size[1], 3), np.uint8)
@@ -92,7 +91,7 @@ def get_img(post_data):
     # add avatar
     print(type(post_data))
     print(type(post_data["post_contact_qq"]))
-    if ("post_contact_qq" in keys) and len(post_data["post_contact_qq"])!=0:
+    if ("post_contact_qq" in keys) and len(post_data["post_contact_qq"]) != 0:
         avatar_img = getCircleAvatar(post_data["post_contact_qq"], size=avatar_size)
     else:
         avatar_img = getCircleAvatar("2825467691", size=avatar_size)
@@ -106,13 +105,13 @@ def get_img(post_data):
 
     post_type = "[" + post_data["post_type"] + "]" + post_data["post_title"]
 
-    english_re = re.compile(r'[\x00-\xff]',re.S)
+    english_re = re.compile(r'[\x00-\xff]', re.S)
     res = re.findall(english_re, post_type)
-    print('english character num is:',res,len(res))
+    print('english character num is:', res, len(res))
 
     type_len = len(res) * 25 + (len(post_type) - len(res)) * 50
     print(type_len)
-    img = cv2ImgAddText(img, post_type, (img_size[1] - type_len) // 2, 280, (0, 0, 255),textSize=50)
+    img = cv2ImgAddText(img, post_type, (img_size[1] - type_len) // 2, 280, (0, 0, 255), textSize=50)
 
     # post_title = post_data["post_title"]
     # img = cv2ImgAddText(img, post_title, 40 + font_size * len(post_type) + 70, 50, (0, 0, 255))
@@ -138,20 +137,20 @@ def get_img(post_data):
             len_a = 0
             post_text_space += "\n"
 
-    img = cv2ImgAddText(img, post_text_space, 42, 390, (0, 0, 0),textSize=42)
+    img = cv2ImgAddText(img, post_text_space, 42, 390, (0, 0, 0), textSize=42)
 
     cv2.line(img, (40, 830), (680, 830), (0, 0, 0), thickness=2)
-    if ("post_contact_qq" in keys) and len(post_data["post_contact_qq"])!=0:
+    if ("post_contact_qq" in keys) and len(post_data["post_contact_qq"]) != 0:
         contact_qq = "Q Q：" + post_data["post_contact_qq"]
     else:
         contact_qq = "Q Q：" + "未填写"
     img = cv2ImgAddText(img, contact_qq, 100, 880, (0, 0, 255), 22)
-    if ("post_contact_wechat" in keys) and len(post_data["post_contact_wechat"])!=0:
+    if ("post_contact_wechat" in keys) and len(post_data["post_contact_wechat"]) != 0:
         contact_wechat = "微信：" + post_data["post_contact_wechat"]
     else:
         contact_wechat = "微信：" + "未填写"
     img = cv2ImgAddText(img, contact_wechat, 100, 930, (0, 0, 255), 22)
-    if ("post_contact_tel" in keys) and len(post_data["post_contact_tel"])!=0:
+    if ("post_contact_tel" in keys) and len(post_data["post_contact_tel"]) != 0:
         contact_tel = "联系电话：" + post_data["post_contact_tel"]
     else:
         contact_tel = "联系电话：" + "未填写"
@@ -165,11 +164,13 @@ def get_img(post_data):
 
 app = Flask(__name__)
 
-@app.route('/test',methods=['post'])
-def hello_world():
-   return 'Hello World!'
 
-@app.route('/image',methods=['post'])
+@app.route('/test', methods=['post'])
+def hello_world():
+    return 'Hello World!'
+
+
+@app.route('/image', methods=['post'])
 def draw_image():
     data = request.get_json()
     print(data)
@@ -180,10 +181,10 @@ def draw_image():
     # print(image_code)
     return image_code
 
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-
 
     parser.add_argument('--test', action="store_true", help="if test or not")
 
@@ -198,7 +199,9 @@ if __name__ == '__main__':
 
         img = get_img(post_data)
         cv2.imshow("test", img)
+        cv2.imwrite("example.png",img)
         cv2.waitKey()
 
     else:
-        app.run(host="0.0.0.0", port=5000, debug=False, ssl_context=("./ssl/www.zzsqwq.cn.crt","./ssl/www.zzsqwq.cn.key"))
+        app.run(host="0.0.0.0", port=5000, debug=False,
+                ssl_context=("./ssl/www.zzsqwq.cn.crt", "./ssl/www.zzsqwq.cn.key"))
