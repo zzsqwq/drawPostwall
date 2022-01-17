@@ -93,40 +93,8 @@ def drawDashLine(img, pointx, pointy, decay=10):
 def get_img(post_data):
     keys = post_data.keys()
 
-    img = np.zeros((int(img_size[0]*scale), int(img_size[1]*scale), 3), np.uint8)
-    img.fill(255)
-
-    # add avatar
-
-    print(type(post_data))
-    print(type(post_data["post_contact_qq"]))
-    if ("post_contact_qq" in keys) and len(post_data["post_contact_qq"]) != 0:
-        avatar_img = getCircleAvatar(post_data["post_contact_qq"], size=avatar_size)
-    else:
-        avatar_img = getCircleAvatar("2825467691", size=avatar_size)
-    img[int(60*scale):int(60*scale) + int(avatar_size[0]*scale), int(270*scale):int(270*scale) + int(avatar_size[1]*scale), :] = avatar_img
-
-    # add time
-    real_time = post_data["post_date"]
-    post_time = "投稿时间：" + real_time[0:4] + "/" + real_time[5:7] + "/" + real_time[8:10]
-    print(post_time)
-    img = cv2ImgAddText(img, post_time, int(250*scale), int(250*scale), (128, 128, 128), textSize=int(20*scale))
-
-    post_type = "[" + post_data["post_type"] + "]" + post_data["post_title"]
-
     english_re = re.compile(r'[\x00-\xff]', re.S)
-    res = re.findall(english_re, post_type)
-    print('english character num is:', res, len(res))
 
-    type_len = len(res) * 25 + (len(post_type) - len(res)) * 50
-    print(type_len)
-    img = cv2ImgAddText(img, post_type, int((img_size[1] - type_len) * scale // 2), int(280*scale), (0, 0, 255), textSize=int(50 * scale))
-
-    # post_title = post_data["post_title"]
-    # img = cv2ImgAddText(img, post_title, 40 + font_size * len(post_type) + 70, 50, (0, 0, 255))
-    # img = drawDashLine(img, (24, 180), (456, 180))
-    # add split line
-    cv2.line(img, (int(40*scale), int(370*scale)), (int(680*scale), int(370*scale)), (0, 0, 0), thickness=int(2*scale))
 
     # add detail text
     post_text = post_data["post_text"]
@@ -153,6 +121,43 @@ def get_img(post_data):
         enter_nums = enter_nums - 8
     else:
         enter_nums = 0
+
+
+    img = np.zeros((int(img_size[0]*scale) + int(enter_nums*scale*42), int(img_size[1]*scale), 3), np.uint8)
+    img.fill(255)
+
+    # add avatar
+
+    print(type(post_data))
+    print(type(post_data["post_contact_qq"]))
+    if ("post_contact_qq" in keys) and len(post_data["post_contact_qq"]) != 0:
+        avatar_img = getCircleAvatar(post_data["post_contact_qq"], size=avatar_size)
+    else:
+        avatar_img = getCircleAvatar("2825467691", size=avatar_size)
+    img[int(60*scale):int(60*scale) + int(avatar_size[0]*scale), int(270*scale):int(270*scale) + int(avatar_size[1]*scale), :] = avatar_img
+
+    # add time
+    real_time = post_data["post_date"]
+    post_time = "投稿时间：" + real_time[0:4] + "/" + real_time[5:7] + "/" + real_time[8:10]
+    print(post_time)
+    img = cv2ImgAddText(img, post_time, int(250*scale), int(250*scale), (128, 128, 128), textSize=int(20*scale))
+
+    post_type = "[" + post_data["post_type"] + "]" + post_data["post_title"]
+
+    res = re.findall(english_re, post_type)
+    print('english character num is:', res, len(res))
+
+    type_len = len(res) * 25 + (len(post_type) - len(res)) * 50
+    print(type_len)
+    img = cv2ImgAddText(img, post_type, int((img_size[1] - type_len) * scale // 2), int(280*scale), (0, 0, 255), textSize=int(50 * scale))
+
+    # post_title = post_data["post_title"]
+    # img = cv2ImgAddText(img, post_title, 40 + font_size * len(post_type) + 70, 50, (0, 0, 255))
+    # img = drawDashLine(img, (24, 180), (456, 180))
+    # add split line
+    cv2.line(img, (int(40*scale), int(370*scale)), (int(680*scale), int(370*scale)), (0, 0, 0), thickness=int(2*scale))
+
+
 
     img = cv2ImgAddText(img, post_text_space, int(42*scale), int(390*scale), (0, 0, 0), textSize=int(42*scale))
 
