@@ -22,7 +22,7 @@ dx = 1080/720
 avatar_size = (180, 180)
 font_size = 20
 img_size = (1080, 720)
-scale = 1.5
+scale = 2
 
 
 def cv2ImgAddText(img, text, left, top, textColor=(0, 255, 0), textSize=20):
@@ -165,7 +165,7 @@ def get_img(post_data):
         contact_tel = "联系电话：" + "未填写"
     img = cv2ImgAddText(img, contact_tel, int(100*scale), int(980*scale), (0, 0, 255), int(22*scale))
 
-    qr_img = getQrcodeImg()
+    qr_img = getQrcodeImg(size=(int(192*scale),int(192*scale)))
     img[int(850*scale):int(1042*scale), int(440*scale):int(632*scale), :] = qr_img
 
     return img
