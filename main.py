@@ -117,8 +117,8 @@ def get_img(post_data):
             post_text_space += "\n"
             enter_nums += 1
 
-    if enter_nums > 8:
-        enter_nums = enter_nums - 8
+    if enter_nums > 7:
+        enter_nums = enter_nums - 7
     else:
         enter_nums = 0
 
@@ -159,7 +159,7 @@ def get_img(post_data):
 
 
 
-    img = cv2ImgAddText(img, post_text_space, int(42*scale), int(390*scale), (0, 0, 0), textSize=int(42*scale))
+    img = cv2ImgAddText(img, post_text_space, int(42*scale), int(380*scale), (0, 0, 0), textSize=int(42*scale))
 
     cv2.line(img, (int(40*scale), int(830*scale) + int(enter_nums*42*scale)), (int(680*scale), int(830*scale) + int(enter_nums*42*scale) ), (0, 0, 0), thickness=int(2*scale))
     if ("post_contact_qq" in keys) and len(post_data["post_contact_qq"]) != 0:
