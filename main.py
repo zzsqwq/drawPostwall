@@ -132,10 +132,12 @@ def get_img(post_data):
     post_text = post_data["post_text"]
     post_text_space = ""
     len_a = 0
+    enter_nums = 0
     for i in range(len(post_text)):
         post_text_space += post_text[i]
         if post_text[i] == '\n':
             len_a = 0
+            enter_nums += 1
             continue
         if len(re.findall(english_re, post_text[i])) != 0:
             len_a += 1
@@ -145,28 +147,34 @@ def get_img(post_data):
         if len_a > 28:
             len_a = 0
             post_text_space += "\n"
+            enter_nums += 1
+
+    if enter_nums > 8:
+        enter_nums = enter_nums - 8
+    else:
+        enter_nums = 0
 
     img = cv2ImgAddText(img, post_text_space, int(42*scale), int(390*scale), (0, 0, 0), textSize=int(42*scale))
 
-    cv2.line(img, (int(40*scale), int(830*scale)), (int(680*scale), int(830*scale)), (0, 0, 0), thickness=int(2*scale))
+    cv2.line(img, (int(40*scale), int(830*scale) + int(enter_nums*42*scale)), (int(680*scale), int(830*scale) + int(enter_nums*42*scale) ), (0, 0, 0), thickness=int(2*scale))
     if ("post_contact_qq" in keys) and len(post_data["post_contact_qq"]) != 0:
         contact_qq = "Q Q：" + post_data["post_contact_qq"]
     else:
         contact_qq = "Q Q：" + "未填写"
-    img = cv2ImgAddText(img, contact_qq, int(100*scale), int(880*scale), (0, 0, 255), int(22*scale))
+    img = cv2ImgAddText(img, contact_qq, int(100*scale), int(880*scale) + int(enter_nums*42*scale), (0, 0, 255), int(22*scale))
     if ("post_contact_wechat" in keys) and len(post_data["post_contact_wechat"]) != 0:
         contact_wechat = "微信：" + post_data["post_contact_wechat"]
     else:
         contact_wechat = "微信：" + "未填写"
-    img = cv2ImgAddText(img, contact_wechat, int(100*scale), int(930*scale), (0, 0, 255), int(22*scale))
+    img = cv2ImgAddText(img, contact_wechat, int(100*scale), int(930*scale) + int(enter_nums*42*scale), (0, 0, 255), int(22*scale))
     if ("post_contact_tel" in keys) and len(post_data["post_contact_tel"]) != 0:
         contact_tel = "联系电话：" + post_data["post_contact_tel"]
     else:
         contact_tel = "联系电话：" + "未填写"
-    img = cv2ImgAddText(img, contact_tel, int(100*scale), int(980*scale), (0, 0, 255), int(22*scale))
+    img = cv2ImgAddText(img, contact_tel, int(100*scale), int(980*scale) + int(enter_nums*42*scale), (0, 0, 255), int(22*scale))
 
     qr_img = getQrcodeImg(size=(int(192*scale),int(192*scale)))
-    img[int(850*scale):int(1042*scale), int(440*scale):int(632*scale), :] = qr_img
+    img[int(850*scale) + int(enter_nums*42*scale) :int(1042*scale) + int(enter_nums*42*scale), int(440*scale):int(632*scale), :] = qr_img
 
     return img
 
