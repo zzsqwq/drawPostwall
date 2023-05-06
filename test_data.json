@@ -1,20 +1,25 @@
 {
-  "_id": "54ad1eea61e2a7620748bfb171e5c18c",
-  "post_text": "现在高中化学课本用新版的有微项目的吗？必修选修都是吗？",
-  "post_title": "化学课本",
-  "post_user_openid": "2C1914EF25F2A9AEE8B984DFAB5EA9C1",
-  "post_contact_tel": "",
-  "post_date": "2022-01-15T11:10:55.883Z'",
-  "post_contact_qq": "2459958352",
-  "post_contact_wechat": "",
-  "post_done": true,
-  "post_time": 1640290700,
-  "post_type": "提问",
-  "post_user_done": false,
-  "_openid": "eb88976d64b748368e2e55d8647a0d46",
-  "image_list": [
-    "cloud://postwall-4gy7eykl559a475a.706f-postwall-4gy7eykl559a475a-1300413137/1642243937/0.jpg"
-  ]
+  "postId": 12,
+  "openId": "0BF2A4106080CE8825BEF952A30311AD",
+  "postType": "提问",
+  "postTitle": "投稿测试",
+  "postContent": "看看你的",
+  "imageList": [
+    "1683288834962/1683288837147-0.JPG",
+    "1683288834962/1683288837147-1.JPG",
+    "1683288834962/1683288837148-2.JPG",
+    "1683288834962/1683288837154-5.JPG",
+    "1683288834962/1683288837147-3.JPG",
+    "1683288834962/1683288837154-4.JPG"
+  ],
+  "contactQQ": "2459958352",
+  "contactWechat": "wechat",
+  "contactTelephone": "18300234626",
+  "isRendered": false,
+  "isSent": false,
+  "isRejected": true,
+  "rejectReason": "未经核实的信息",
+  "createTime": "2023-05-05T20:13:58",
+  "updateTime": "2023-05-06T02:13:44"
 }
-
 

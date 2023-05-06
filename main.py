@@ -11,12 +11,34 @@ import numpy as np
 import requests
 from PIL import Image, ImageDraw, ImageFont
 from emoji2pic import Emoji2Pic
+from datetime import datetime
+
+from typing import Union
+
+from fastapi import FastAPI
+from pydantic import BaseModel
+from fastapi.responses import StreamingResponse
 
 avatar_size = (180, 180)
 font_size = 20
 img_size = (1080, 720)
 scale = 2
 enter_scale = 65
+
+
+class Post(BaseModel):
+    school: str
+    postType: str
+    postTitle: str
+    postContent: str
+    contactQQ: str
+    contactWechat: str
+    contactTelephone: str
+    createTime: str
+    updateTime: str
+
+
+app = FastAPI()
 
 
 def cv2ImgAddText(img, text, left, top, textColor=(0, 255, 0), textSize=20):
@@ -103,7 +125,7 @@ def get_img(post_data):
     english_re = re.compile(r'[\x00-\xff]', re.S)
 
     # add detail text
-    post_text = post_data["post_text"]
+    post_text = post_data["postContent"]
     post_text_space = ""
     len_a = 0
     enter_nums = 1
@@ -135,9 +157,9 @@ def get_img(post_data):
     # add avatar
 
     print(type(post_data))
-    print(type(post_data["post_contact_qq"]))
-    if ("post_contact_qq" in keys) and len(post_data["post_contact_qq"]) != 0:
-        avatar_img = get_circle_avatar(post_data["post_contact_qq"], size=avatar_size)
+    print(type(post_data["contactQQ"]))
+    if ("contactQQ" in keys) and len(post_data["contactQQ"]) != 0:
+        avatar_img = get_circle_avatar(post_data["contactQQ"], size=avatar_size)
     else:
         avatar_img = get_circle_avatar("2825467691", size=avatar_size)
     img[int(60 * scale):int(60 * scale) + int(avatar_size[0] * scale),
@@ -147,14 +169,17 @@ def get_img(post_data):
     # real_time = post_data["post_date"]
     # post_time = "投稿时间：" + real_time[0:4] + "/" + real_time[5:7] + "/" + real_time[8:10]
     # utc8
-    post_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(post_data["post_time"]) + 28800))
+    date_str = post_data["createTime"]
+    # 2023-05-06T02:13:44" 格式转成 2023-05-06 02:13:44
+    datetime_object = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S")
+    formatted_date_string = datetime_object.strftime("%Y-%m-%d %H:%M:%S")
 
-    print(post_time)
-    time_len = len(post_time) * 10
-    img = cv2ImgAddText(img, post_time, int((img_size[1] - time_len) * scale // 2), int(250 * scale), (128, 128, 128),
+    time_len = len(formatted_date_string) * 10
+    img = cv2ImgAddText(img, formatted_date_string, int((img_size[1] - time_len) * scale // 2), int(250 * scale),
+                        (128, 128, 128),
                         textSize=int(20 * scale))
 
-    post_type = "[" + post_data["post_type"] + "]" + post_data["post_title"]
+    post_type = "[" + post_data["postType"] + "]" + post_data["postTitle"]
 
     res = re.findall(english_re, post_type)
     print('english character num is:', res, len(res))
@@ -176,20 +201,20 @@ def get_img(post_data):
     cv2.line(img, (int(40 * scale), int(860 * scale) + int(enter_nums * enter_scale * scale)),
              (int(680 * scale), int(860 * scale) + int(enter_nums * enter_scale * scale)), (0, 0, 0),
              thickness=int(2 * scale))
-    if ("post_contact_qq" in keys) and len(post_data["post_contact_qq"]) != 0:
-        contact_qq = "Q Q ：" + post_data["post_contact_qq"]
+    if ("contactQQ" in keys) and len(post_data["contactQQ"]) != 0:
+        contact_qq = "Q Q ：" + post_data["contactQQ"]
     else:
         contact_qq = "Q Q ：" + "未填写"
     img = cv2ImgAddText(img, contact_qq, int(100 * scale), int(895 * scale) + int(enter_nums * enter_scale * scale),
                         (0, 0, 255), int(22 * scale))
-    if ("post_contact_wechat" in keys) and len(post_data["post_contact_wechat"]) != 0:
-        contact_wechat = "微信：" + post_data["post_contact_wechat"]
+    if ("contactWechat" in keys) and len(post_data["contactWechat"]) != 0:
+        contact_wechat = "微信：" + post_data["contactWechat"]
     else:
         contact_wechat = "微信：" + "未填写"
     img = cv2ImgAddText(img, contact_wechat, int(100 * scale), int(945 * scale) + int(enter_nums * enter_scale * scale),
                         (0, 0, 255), int(22 * scale))
-    if ("post_contact_tel" in keys) and len(post_data["post_contact_tel"]) != 0:
-        contact_tel = "联系电话：" + post_data["post_contact_tel"]
+    if ("contactTelephone" in keys) and len(post_data["contactTelephone"]) != 0:
+        contact_tel = "联系电话：" + post_data["contactTelephone"]
     else:
         contact_tel = "联系电话：" + "未填写"
     img = cv2ImgAddText(img, contact_tel, int(100 * scale), int(995 * scale) + int(enter_nums * enter_scale * scale),
@@ -212,14 +237,25 @@ def main():
     img = get_img(post_data)
 
     # cv2.imshow("img", img)
-    cv2.imwrite("test.png", img)
+    # cv2.imwrite("test.png", img)
 
-    # image = cv2.imencode('.png', img)[1]
+    image = cv2.imencode('.png', img)[1]
     #
+    image_code = str(base64.b64encode(image))[2:-1]
+    #
+    return image_code
+
+@app.post("/api/v1/draw")
+async def draw_post(post: Post):
+    print(post)
+    post_data = post.dict()
+    print(post_data)
+    img = get_img(post_data)
+    image = cv2.imencode('.png', img)[1]
     # image_code = str(base64.b64encode(image))[2:-1]
-    #
     # return image_code
-
-
-if __name__ == '__main__':
-    main()
+    return StreamingResponse(BytesIO(image.tobytes()), media_type="image/png")
+    # img = get_img(post_data)
+    # image = cv2.imencode('.png', img)[1]
+    # image_code = str(base64.b64encode(image))[2:-1]
+    # return image_code
