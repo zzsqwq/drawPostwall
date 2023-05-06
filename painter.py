@@ -56,7 +56,7 @@ class Painter(object):
         rows, cols, channel = avatar.shape
         circle_avatar = np.zeros((rows, cols, 1), np.uint8)
         circle_avatar[:, :, :] = 255  # 设置为全透明
-        circle_avatar= cv2.circle(circle_avatar, (cols // 2, rows // 2), min(rows, cols) // 2, 0, -1)
+        circle_avatar = cv2.circle(circle_avatar, (cols // 2, rows // 2), min(rows, cols) // 2, 0, -1)
 
         for i in range(rows):
             for j in range(cols):
@@ -121,10 +121,10 @@ class Painter(object):
         img.fill(255)
 
         # Add avatar
-        if ("contactQQ" in keys) and len(post_data["contactQQ"]) != 0:
-            avatar_img = self.get_circle_avatar(post_data["contactQQ"], size=self.avatar_size)
-        else:
-            avatar_img = self.get_circle_avatar("2825467691", size=self.avatar_size)
+        contactQQ = post_data.get("contactQQ")
+        if contactQQ is None or contactQQ == "":
+            contactQQ = "2825467691"
+        avatar_img = self.get_circle_avatar(contactQQ, size=self.avatar_size)
         img[int(60 * self.scale):int(60 * self.scale) + int(self.avatar_size[0] * self.scale),
         int(270 * self.scale):int(270 * self.scale) + int(self.avatar_size[1] * self.scale), :] = avatar_img
 
@@ -143,7 +143,6 @@ class Painter(object):
         post_type = "[" + post_data["postType"] + "]" + post_data["postTitle"]
 
         res = re.findall(english_re, post_type)
-        logger.info('english character num')
 
         type_len = len(res) * 25 + (len(post_type) - len(res)) * 50
         img = self.add_text(img, post_type, int((self.img_size[1] - type_len) * self.scale // 2), int(280 * self.scale),
@@ -164,24 +163,24 @@ class Painter(object):
                  thickness=int(2 * self.scale))
 
         # Add contacts
-        if ("contactQQ" in keys) and len(post_data["contactQQ"]) != 0:
-            contact_qq = "Q Q ：" + post_data["contactQQ"]
-        else:
-            contact_qq = "Q Q ：" + "未填写"
+        draw_qq = post_data.get("contactQQ")
+        if draw_qq is None or draw_qq == "":
+            draw_qq = "未填写"
+        contact_qq = "QQ：" + draw_qq
         img = self.add_text(img, contact_qq, int(100 * self.scale),
                             int(895 * self.scale) + int(enter_nums * self.enter_scale * self.scale),
                             (0, 0, 255), int(22 * self.scale))
-        if ("contactWechat" in keys) and len(post_data["contactWechat"]) != 0:
-            contact_wechat = "微信：" + post_data["contactWechat"]
-        else:
-            contact_wechat = "微信：" + "未填写"
+        draw_wechat = post_data.get("contactWechat")
+        if draw_wechat is None or draw_wechat == "":
+            draw_wechat = "未填写"
+        contact_wechat = "微信：" + draw_wechat
         img = self.add_text(img, contact_wechat, int(100 * self.scale),
                             int(945 * self.scale) + int(enter_nums * self.enter_scale * self.scale),
                             (0, 0, 255), int(22 * self.scale))
-        if ("contactTelephone" in keys) and len(post_data["contactTelephone"]) != 0:
-            contact_tel = "联系电话：" + post_data["contactTelephone"]
-        else:
-            contact_tel = "联系电话：" + "未填写"
+        draw_tel = post_data.get("contactTelephone")
+        if draw_tel is None or draw_tel == "":
+            draw_tel = "未填写"
+        contact_tel = "电话：" + draw_tel
         img = self.add_text(img, contact_tel, int(100 * self.scale),
                             int(995 * self.scale) + int(enter_nums * self.enter_scale * self.scale),
                             (0, 0, 255), int(22 * self.scale))
