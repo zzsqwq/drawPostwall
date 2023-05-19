@@ -1,2 +1,3 @@
 # IDEA files
 .idea/
+**/__pycache__/

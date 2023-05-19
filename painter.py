@@ -131,6 +131,9 @@ class Painter(object):
         # Add time
         date_str = post_data["createTime"]
         # 2023-05-06T02:13:44" 格式转成 2023-05-06 02:13:44
+        # format_string = "%Y-%m-%dT%H:%M:%S"
+        if len(date_str) == len("YYYY-MM-DDTHH:MM"):
+            date_str += ":00"
         datetime_object = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S")
         formatted_date_string = datetime_object.strftime("%Y-%m-%d %H:%M:%S")
 
